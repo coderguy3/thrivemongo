@@ -31,7 +31,7 @@ class Config:
 
 config: Config = Config(
     discord=Discord(
-        token="MTMxMTg5MjExNjMzMDM4NTU0MA.GxbPpO.LNjTUQ5Hyr3fNLTlGSNglkwjC6khXDK_HV_1F0",
+        token="",
     ),
     client=Client(owners=[261855568073850890]),
     database=Database(),
