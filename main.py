@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import List, Optional
 from pathlib import Path
 import time
+import contextlib
 
 from aiohttp import ClientSession, TCPConnector
 from datetime import datetime
@@ -9,7 +10,7 @@ from logging import DEBUG, getLogger
 
 from colorama import Fore, Style
 
-from discord import AllowedMentions, Intents, ClientUser, Interaction
+from discord import AllowedMentions, Intents, ClientUser, Interaction, HTTPException
 from discord.message import Message
 from discord.ext.commands import Bot, when_mentioned_or
 from discord.utils import utcnow
@@ -93,6 +94,20 @@ class Thrive(Bot):
                 log.exception(
                     "Failed to load extension %s.", feature.name, exc_info=exc
                 )
+
+    async def on_message(self, message: Message):
+        if not self.is_ready() or not message.guild or message.author.bot:
+            return
+
+        if message.content == f"<@{self.user.id}>":
+            with contextlib.suppress(HTTPException):
+                await message.reply(f"Hi my prefix is `;`")
+
+        ctx = await self.get_context(message)
+
+        if not ctx.command:
+            return
+        await self.process_commands(message)
 
     async def get_context(
         self, origin: Message | Interaction, /, *, cls=Context

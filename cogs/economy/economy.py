@@ -54,34 +54,33 @@ class Economy(Cog):
     async def beg(self, ctx: Context, member: User = None) -> None:
         """Beg for a quick lump of cash"""
         target = member or ctx.author
-        user_data = await self.bot.db.users.find_one({"_id": target.id})
-        outcome_type = random.choice(["success_messages", "fail_messages", "loss_messages"])
+        outcome_type = random.choice(
+            ["success_messages", "fail_messages", "loss_messages"]
+        )
         selected_message = random.choice(self.beg_messages[outcome_type])
         payout = random.randint(1, 100)
 
         if outcome_type == "success_messages":
             await self.bot.db.users.update_one(
-                {"_id": target.id},
-                {"$inc": {"wallet": payout}}
+                {"_id": target.id}, {"$inc": {"wallet": payout}}
             )
             final_message = selected_message.replace("${money}", f"**${payout}**")
-            embed=Embed(description=f"{final_message}")
+            embed = Embed(description=f"{final_message}")
             await ctx.send(embed=embed)
 
-        elif outcome_type == "fail_messages":
-            embed=Embed(color=Color.invisible_color, description=f"{selected_message}")
+        elif outcome_type == "loss_messages":
+            await self.bot.db.users.update_one(
+                {"_id": target.id}, {"$inc": {"wallet": -payout}}
+            )
+            final_message = selected_message.replace("${money}", f"**${payout}**")
+            embed = Embed(description=f"{final_message}")
             await ctx.send(embed=embed)
 
         else:
-            await self.bot.db.users.update_one(
-                {"_id": target.id},
-                {"$inc": {"wallet": -payout}}
+            embed = Embed(
+                color=Color.invisible_color, description=f"{selected_message}"
             )
-            final_message = selected_message.replace("${money}", f"**${payout}**")
-            embed=Embed(description=f"{final_message}")
             await ctx.send(embed=embed)
-
-
 
     @hybrid_command(name="balance", aliases=["bal"])
     @ensure_user_in_db()
@@ -93,10 +92,18 @@ class Economy(Cog):
         wallet_amount = user_data.get("wallet", 0)
 
         if not user_data:
-            embed=Embed(color=Color.invisible_color, title=f"{ctx.author}'s balance", url="https://www.youtube.com/watch?v=yvHYWD29ZNY")
-            embed.add_field(name="Wallet", value=f"{wallet_amount:,}")
+            embed = Embed(
+                color=Color.invisible_color,
+                title=f"{ctx.author}'s balance",
+                url="https://www.youtube.com/watch?v=yvHYWD29ZNY",
+            )
+            embed.add_field(name="Wallet", value=f"${wallet_amount:,}")
             return await ctx.send(embed=embed)
 
-        embed=Embed(color=Color.invisible_color, title=f"{ctx.author}'s balance", url="https://www.youtube.com/watch?v=yvHYWD29ZNY")
-        embed.add_field(name="Wallet", value=f"{wallet_amount:,}")
+        embed = Embed(
+            color=Color.invisible_color,
+            title=f"{ctx.author}'s balance",
+            url="https://www.youtube.com/watch?v=yvHYWD29ZNY",
+        )
+        embed.add_field(name="Wallet", value=f"${wallet_amount:,}")
         await ctx.send(embed=embed)
