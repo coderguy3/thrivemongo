@@ -3,6 +3,7 @@ from typing import Callable
 from pathlib import Path
 import random
 import json
+from bson import Int64
 
 from discord import Message, User, Embed
 from discord.ext import commands
@@ -25,7 +26,7 @@ def ensure_user_in_db() -> Callable:
                 {
                     "_id": ctx.author.id,
                     "username": ctx.author.name,
-                    "wallet": 0,
+                    "wallet": Int64(0),
                 }
             )
             try:
@@ -51,6 +52,7 @@ class Economy(Cog):
 
     @hybrid_command(name="beg")
     @ensure_user_in_db()
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def beg(self, ctx: Context, member: User = None) -> None:
         """Beg for a quick lump of cash"""
         target = member or ctx.author
@@ -84,25 +86,20 @@ class Economy(Cog):
 
     @hybrid_command(name="balance", aliases=["bal"])
     @ensure_user_in_db()
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def balance(self, ctx: Context, member: User = None) -> None:
-        """Check your own or another user's balance"""
+        """Check your own or another user's balance."""
         target = member or ctx.author
         user_data = await self.bot.db.users.find_one({"_id": target.id})
 
-        wallet_amount = user_data.get("wallet", 0)
-
         if not user_data:
-            embed = Embed(
-                color=Color.invisible_color,
-                title=f"{ctx.author}'s balance",
-                url="https://www.youtube.com/watch?v=yvHYWD29ZNY",
-            )
-            embed.add_field(name="Wallet", value=f"${wallet_amount:,}")
-            return await ctx.send(embed=embed)
+            wallet_amount = 0
+        else:
+            wallet_amount = user_data.get("wallet", 0)
 
         embed = Embed(
             color=Color.invisible_color,
-            title=f"{ctx.author}'s balance",
+            title=f"{target}'s balance",
             url="https://www.youtube.com/watch?v=yvHYWD29ZNY",
         )
         embed.add_field(name="Wallet", value=f"${wallet_amount:,}")
