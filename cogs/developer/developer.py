@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import Optional, Literal
 
 from discord import Object, HTTPException
-from discord.ext.commands import Cog, group, command, Greedy
+from discord.ext import commands
+from discord.ext.commands import Cog, group, command, Greedy,
 
 from main import Thrive
 from tools.client.context import Context
@@ -13,6 +14,7 @@ class Developer(Cog):
         self.bot = bot
 
     @command()
+    @commands.is_owner()
     async def sync(self, ctx: Context, guilds: Greedy[Object], spec: Optional[Literal["~", "*", "^"]] = None) -> None:
         if not guilds:
             if spec == "~":

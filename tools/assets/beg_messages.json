@@ -18,7 +18,7 @@
         "A stray cat led you to a hidden stash of **${money}**!",
         "A traveling bard took pity on you and shared **${money}** from their tip jar",
         "You were rummaging through the lost-and-found bin and discovered **${money}**!",
-        "A sudden donation drive showered you with **${money}$** Lucky day!",
+        "A sudden donation drive showered you with **${money}** Lucky day!",
         "You tripped and landed on a small pouch containing **${money}**"
     ],
     "fail_messages": [

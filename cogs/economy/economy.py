@@ -104,28 +104,6 @@ class Economy(Cog):
 
         await self.update_user_stats(target.id, "beg")
 
-    @hybrid_command(name="balance", aliases=["bal"])
-    @ensure_user_in_db()
-    @commands.cooldown(1, 3, commands.BucketType.user)
-    async def balance(self, ctx: Context, member: User = None) -> None:
-        """Check your own or another user's balance."""
-        target = member or ctx.author
-        user_data = await self.bot.db.users.find_one(
-            {"_id": target.id}, {"wallet": 1, "level": 1}
-        )
-
-        wallet_amount = user_data.get("wallet", 0)
-
-        embed = Embed(
-            color=Color.invisible_color,
-            title=f"{target}'s balance",
-        )
-        embed.add_field(name="Wallet", value=f"${wallet_amount:,}")
-        await ctx.send(embed=embed)
-
-        if member is None:
-            await self.update_user_stats(target.id, "balance")
-
     @hybrid_command(name="explore")
     @ensure_user_in_db()
     @commands.cooldown(1, 20, commands.BucketType.user)
@@ -150,4 +128,26 @@ class Economy(Cog):
         await ctx.send(embed=embed)
     
         await self.update_user_stats(target.id, "explore")
-    
+
+    @hybrid_command(name="balance", aliases=["bal"])
+    @ensure_user_in_db()
+    @commands.cooldown(1, 3, commands.BucketType.user)
+    async def balance(self, ctx: Context, member: User = None) -> None:
+        """Check your own or another user's balance."""
+        target = member or ctx.author
+        user_data = await self.bot.db.users.find_one(
+            {"_id": target.id}, {"wallet": 1, "level": 1}
+        )
+
+        wallet_amount = user_data.get("wallet", 0)
+
+        embed = Embed(
+            color=Color.invisible_color,
+            title=f"{target}'s balance",
+            url="https://www.youtube.com/watch?v=yvHYWD29ZNY"
+        )
+        embed.add_field(name="Wallet", value=f"${wallet_amount:,}")
+        await ctx.send(embed=embed)
+
+        if member is None:
+            await self.update_user_stats(target.id, "balance")
